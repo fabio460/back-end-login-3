@@ -41,12 +41,13 @@ export const cadastrarUsuario = async (req:Request, res:Response)=>{
 
 export const logarUsuario =  async (req:Request, res:Response)=>{
    const {email, senha} = req.body
-
    if (!email && !senha) {
-      res.status(401).json("Insira um email e uma senha")
+     return res.status(401).json("Insira um email e uma senha")
    }
-   const usuario = await prisma.usuario.findUnique({where:email})
    try {    
+       const usuario = await prisma.usuario.findUnique({
+        where:{email}
+       })
        const senhaValida =await bcrypt.compare(senha, usuario?.senha as string)
        if (senhaValida) {
           const token = jwt.sign({usuario},chaveSecreta,{expiresIn:"1d"})
@@ -57,8 +58,9 @@ export const logarUsuario =  async (req:Request, res:Response)=>{
             token
         })
        }
+       return res.status(400).json("Senha incorreta!")
    } catch (error) {
-      return res.status(400).json("Email ou senha in válidos!")
+      return res.status(400).json("Email inexistente!")
    }
 }
 
