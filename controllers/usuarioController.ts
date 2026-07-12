@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { usuarioType } from "../types";
 const chaveSecreta = "chavetoken"
 const prisma = new PrismaClient()
 
@@ -68,9 +69,12 @@ export const autenticarUsuario =  async (req:Request, res:Response)=>{
     try {
        const token = req.headers.authorization?.split(" ")[1] as string
        jwt.verify(token,chaveSecreta)
-       const usuario = jwt.decode(token)
+       const usuario:any = jwt.decode(token)
+       const usuarioJson:usuarioType = usuario.usuario
        res.status(200).json({
-         usuario
+          id:usuarioJson.id,
+          nome:usuarioJson.nome,
+          email:usuarioJson.email
        })
    } catch (error) {
       res.status(400).json("Usuário não esta logado!")
